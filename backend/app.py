@@ -14,16 +14,20 @@ APP_ID = os.getenv('APP_ID')
 APP_KEY = os.getenv('APP_KEY')
 HASH_TOKEN = os.getenv('HASH_TOKEN')
 EXPIRATION_DATE = os.getenv('EXPIRATION_DATE')
+BASE_URL = os.getenv('BASE_URL')
 
 BASE_URL = os.getenv('BASE_URL')
 
 # Get risk for a route using start and end point
 @app.route('/risk', methods=['GET'])
 def risk():
-    wp_1 = request.args.get('wp_1', default = '37.7958,-122.3938', type = str)
-    wp_2 = request.args.get('wp_2', default = '37.7212,-122.4919', type = str)
+    wp1 = request.args.get('wp1', default = '37.7958,-122.3938', type = str)
+    wp2 = request.args.get('wp2', default = '37.7212,-122.4919', type = str)
 
-    # Turn boudingBox json into boundingBoxString
+    token = getToken()
+
+    routes = getRoutes(token, wp1, wp2)
+
     boundingBoxString = boundingBoxToString(boundingBox)
 
-    return wp_1
+    return routes

@@ -1,20 +1,23 @@
-import requests
-import json
-import os
-from dotenv import load_dotenv
-load_dotenv()
-
 from flask import Flask, request
+from dotenv import load_dotenv
+
+import json
+import requests
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
 
-appId = os.getenv("appID")
-appKey = os.getenv("appKey")
-hashToken = os.getenv("hashToken")
-expirationDate = os.getenv("expeirationDate")
+APP_ID = os.getenv('APP_ID')
+APP_KEY = os.getenv('APP_KEY')
+HASH_TOKEN = os.getenv('HASH_TOKEN')
+EXPIRATION_DATE = os.getenv('EXPIRATION_DATE')
 
 # Get risk for a route using start and end point
 @app.route('/risk', methods=['GET'])
 def risk():
-    wp_1 = request.args.get('wp_1', default = 'ERR', type = str)
+    wp_1 = request.args.get('wp_1', default = '37.7958,-122.3938', type = str)
+    wp_2 = request.args.get('wp_2', default = '37.7212,-122.4919', type = str)
+    
     return wp_1

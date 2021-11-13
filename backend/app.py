@@ -24,8 +24,12 @@ def risk():
 
     token = getToken()
 
-    routes = getRoutes(token, wp1, wp2)
-
-    # boundingBoxString = boundingBoxToString(boundingBox)
-
-    return routes
+    apiRoutes = getRoutes(token, wp1, wp2)
+    
+    # FOR TESTING ONLY
+    risks = {}
+    for route in apiRoutes:
+        risks[route['id']] = 100
+    #####
+    
+    return formatRoutesForFrontEnd(apiRoutes, risks)

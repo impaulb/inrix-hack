@@ -12,7 +12,7 @@ HASH_TOKEN = os.getenv('HASH_TOKEN')
 EXPIRATION_DATE = os.getenv('EXPIRATION_DATE')
 BASE_URL = os.getenv('BASE_URL')
 
-def boundingBoxToString( boundingBox ):
+def boundingBoxToString(boundingBox):
     lat1 = str(boundingBox['corner1']['coordinates'][0][0])
     long1 = str(boundingBox['corner1']['coordinates'][0][1])
     lat2 = str(boundingBox['corner2']['coordinates'][0][0])
@@ -30,8 +30,20 @@ def getToken():
 def getRoutes(token, wp1, wp2):
     headers = {'Authorization': 'Bearer ' + token}
 
-    routeRequestString = BASE_URL + 'findRoute?wp_1=' + wp1 + '&wp_2=' + wp2 + '&format=json'
+    routeRequestString = BASE_URL + 'findRoute?wp_1=' + wp1 + '&wp_2=' + wp2 + '&format=json&maxAlternates=2&routeOutputFields=ALL'
     routeResponseObj = json.loads(requests.get(routeRequestString, headers=headers).text)
 
-    return routeResponseObj['result']
+    return routeResponseObj['result']['trip']['routes']
 
+def formatRoutesForFrontEnd(routes, risks):
+    response = {'routes': []}
+    
+    for route in routes:
+        center1 = (route['boundingBox']['corner1']['coordinates'][0][0] + route['boundingBox']['corner2']['coordinates'][0][0]) / 2
+        center2 = (route['boundingBox']['corner1']['coordinates'][0][1] + route['boundingBox']['corner2']['coordinates'][0][1]) / 2
+        
+        boundingBox = {'center': [center1, center2], 'radius': max(abs(route['boundingBox']['corner1']['coordinates'][0][0]-center1), abs(route['boundingBox']['corner1']['coordinates'][0][1]-center2)) * 111111}
+        
+        response['routes'].append({'id': route['id'], 'boundingBox': boundingBox, 'risk': risks[route['id']], 'points': route['points']['coordinates']})
+    
+    return response

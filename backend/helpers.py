@@ -47,3 +47,11 @@ def formatRoutesForFrontEnd(routes, risks):
         response['routes'].append({'id': route['id'], 'boundingBox': boundingBox, 'risk': risks[route['id']], 'points': route['points']['coordinates']})
     
     return response
+
+def getRisk(routes, token):
+    risks = {}
+    
+    for route in routes:
+        pass
+    
+    return risks

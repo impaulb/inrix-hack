@@ -13,11 +13,11 @@ EXPIRATION_DATE = os.getenv('EXPIRATION_DATE')
 BASE_URL = os.getenv('BASE_URL')
 
 def boundingBoxToString(boundingBox):
-    lat1 = str(boundingBox['corner1']['coordinates'][0][0])
-    long1 = str(boundingBox['corner1']['coordinates'][0][1])
-    lat2 = str(boundingBox['corner2']['coordinates'][0][0])
-    long2 = str(boundingBox['corner2']['coordinates'][0][1])
-    return lat1+'|'+long1+'|'+lat2+'|'+long2
+    long1 = str(boundingBox['corner1']['coordinates'][0][0])
+    lat1 = str(boundingBox['corner1']['coordinates'][0][1])
+    long2 = str(boundingBox['corner2']['coordinates'][0][0])
+    lat2 = str(boundingBox['corner2']['coordinates'][0][1])
+    return lat1+'|'+long1+','+lat2+'|'+long2
 
 def getToken():
     headers = {}
@@ -37,21 +37,22 @@ def getRoutes(token, wp1, wp2):
 
 def formatRoutesForFrontEnd(routes, risks):
     response = {'routes': []}
-    
+
     for route in routes:
         center1 = (route['boundingBox']['corner1']['coordinates'][0][0] + route['boundingBox']['corner2']['coordinates'][0][0]) / 2
         center2 = (route['boundingBox']['corner1']['coordinates'][0][1] + route['boundingBox']['corner2']['coordinates'][0][1]) / 2
-        
+
         boundingBox = {'center': [center1, center2], 'radius': max(abs(route['boundingBox']['corner1']['coordinates'][0][0]-center1), abs(route['boundingBox']['corner1']['coordinates'][0][1]-center2)) * 111111}
-        
+
         response['routes'].append({'id': route['id'], 'boundingBox': boundingBox, 'risk': risks[route['id']], 'points': route['points']['coordinates']})
-    
+
     return response
 
 def getRisk(routes, token):
     risks = {}
-    
+
     for route in routes:
-        pass
-    
+        risk = 0
+        boundingBoxString = boundingBoxToString(route['boundingBox'])
+
     return risks

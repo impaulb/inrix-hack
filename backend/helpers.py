@@ -53,6 +53,22 @@ def getRisk(routes, token):
 
     for route in routes:
         risk = 0
-        boundingBoxString = boundingBoxToString(route['boundingBox'])
+        incidents = getIncidents(route['id'], token)
+        print(incidents)
+        print(route['id'])
 
     return risks
+
+def getIncidents(routeID, token):
+    incidents = []
+
+    headers = {'Authorization': 'Bearer ' + token}
+
+    routeRequestString = BASE_URL + 'route?routeId=' + routeID + '&routeOutputFields=I&format=json'
+    routeResponseObj = json.loads(requests.get(routeRequestString, headers=headers).text)
+
+    if 'incidents' in routeResponseObj['result'].keys():
+        incidents = routeResponseObj['result']['incidents']
+        print(incidents)
+
+    return incidents

@@ -26,12 +26,6 @@ def risk():
 
     apiRoutes = getRoutes(token, wp1, wp2)
 
-    risk = getRisk(apiRoutes, token)
-
-    # FOR TESTING ONLY
-    risks = {}
-    for route in apiRoutes:
-        risks[route['id']] = 100
-    #####
+    risks = getRisk(apiRoutes, token)
 
     return formatRoutesForFrontEnd(apiRoutes, risks)

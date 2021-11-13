@@ -44,7 +44,7 @@ def formatRoutesForFrontEnd(routes, risks):
 
         boundingBox = {'center': [center1, center2], 'radius': max(abs(route['boundingBox']['corner1']['coordinates'][0][0]-center1), abs(route['boundingBox']['corner1']['coordinates'][0][1]-center2)) * 111111}
 
-        response['routes'].append({'id': route['id'], 'boundingBox': boundingBox, 'risk': risks[route['id']], 'points': route['points']['coordinates']})
+        response['routes'].append({'id': route['id'], 'risk': risks[route['id']], 'boundingBox': boundingBox, 'points': route['points']['coordinates']})
 
     return response
 
@@ -54,8 +54,14 @@ def getRisk(routes, token):
     for route in routes:
         risk = 0
         incidents = getIncidents(route['id'], token)
-        print(incidents)
-        print(route['id'])
+        risk += 0.25 * getTimeRisk(route)
+        risk += 0.25 * getSpeedRisk(route)
+        risk += 0.25 * getSlowdownRisk(route, token)
+        risk += 0.25 * getWeatherRisk(route)
+
+        print("### TOTAL RISK: " + str(risk) + "\n")
+
+        risks[route['id']] = risk
 
     return risks
 
@@ -72,3 +78,68 @@ def getIncidents(routeID, token):
         print(incidents)
 
     return incidents
+
+def getTimeRisk(route):
+    risk = 0
+
+    travelTimeMinutes = route['travelTimeMinutes']
+    abnormalMinutes = abs(route['abnormalityMinutes'])
+
+    risk += min(travelTimeMinutes / 5, 50)
+    risk += min(abnormalMinutes / 2, 50)
+
+    print("TRAVEL TIME RISK: " + str(risk))
+
+    return risk
+
+def getSpeedRisk(route):
+    risk = 0
+
+    averageSpeed = route['averageSpeed']
+
+    if(averageSpeed < 60 and averageSpeed > 25):
+        risk += averageSpeed - 25
+    elif(averageSpeed >= 60):
+        risk += min(averageSpeed + 10, 100)
+
+    print("SPEED RISK: " + str(risk))
+
+    return risk
+
+def getSlowdownRisk(route, token):
+    headers = {'Authorization': 'Bearer ' + token}
+
+    routeId = route['id']
+    slowdownRequestString = BASE_URL + "v1/dangerousSlowdowns?box="+boundingBoxToString(route['boundingBox'])+'&format=json'
+
+    slowdownResponseObj = json.loads(requests.get(slowdownRequestString, headers=headers).text)
+
+    risk = 0
+
+    for slowdown in slowdownResponseObj['result']['dangerousSlowdowns']:
+        speedDelta = slowdown['speedDelta']
+        risk += speedDelta - 20
+
+    risk = risk / len(slowdownResponseObj['result']['dangerousSlowdowns'])
+
+    if(risk > 100):
+        return 100
+
+    print("SLOWDOWN RISK: " + str(risk))
+
+    return risk
+
+def getWeatherRisk(route):
+    weatherRequestString = 'http://api.weatherapi.com/v1/current.json?key=6f47484c009940f1915234049211311&q=San Francisco&aqi=no'
+    weatherResponseObj = json.loads(requests.get(weatherRequestString).text)['current']
+
+    risk = 0
+
+    if(weatherResponseObj['is_day']):
+        risk += 25
+
+    risk += weatherResponseObj['gust_mph']
+
+    #if(weatherResponseObj['condition']['code'])
+
+    return 1

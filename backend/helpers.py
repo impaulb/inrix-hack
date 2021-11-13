@@ -56,6 +56,7 @@ def getRisk(routes, token):
         risk += 0.25 * getTimeRisk(route)
         risk += 0.25 * getSpeedRisk(route)
         risk += 0.25 * getSlowdownRisk(route, token)
+        risk += 0.25 * getWeatherRisk(route)
         
         print("### TOTAL RISK: " + str(risk) + "\n")
         
@@ -112,4 +113,18 @@ def getSlowdownRisk(route, token):
     print("SLOWDOWN RISK: " + str(risk))
     
     return risk
+
+def getWeatherRisk(route):
+    weatherRequestString = 'http://api.weatherapi.com/v1/current.json?key=6f47484c009940f1915234049211311&q=San Francisco&aqi=no'
+    weatherResponseObj = json.loads(requests.get(weatherRequestString).text)['current']
     
+    risk = 0
+    
+    if(weatherResponseObj['is_day']):
+        risk += 25
+    
+    risk += weatherResponseObj['gust_mph']
+    
+    #if(weatherResponseObj['condition']['code'])
+    
+    return 1

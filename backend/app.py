@@ -16,8 +16,6 @@ HASH_TOKEN = os.getenv('HASH_TOKEN')
 EXPIRATION_DATE = os.getenv('EXPIRATION_DATE')
 BASE_URL = os.getenv('BASE_URL')
 
-BASE_URL = os.getenv('BASE_URL')
-
 # Get risk for a route using start and end point
 @app.route('/risk', methods=['GET'])
 def risk():
@@ -28,6 +26,6 @@ def risk():
 
     routes = getRoutes(token, wp1, wp2)
 
-    boundingBoxString = boundingBoxToString(boundingBox)
+    # boundingBoxString = boundingBoxToString(boundingBox)
 
     return routes

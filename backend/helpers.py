@@ -1,4 +1,16 @@
 import json
+import os
+import requests
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+APP_ID = os.getenv('APP_ID')
+APP_KEY = os.getenv('APP_KEY')
+HASH_TOKEN = os.getenv('HASH_TOKEN')
+EXPIRATION_DATE = os.getenv('EXPIRATION_DATE')
+BASE_URL = os.getenv('BASE_URL')
 
 def boundingBoxToString( boundingBox ):
     lat1 = str(boundingBox['corner1']['coordinates'][0][0])

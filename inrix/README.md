@@ -1,4 +1,4 @@
-# inrix_hack
+# inrix
 
 A new Flutter project.
 

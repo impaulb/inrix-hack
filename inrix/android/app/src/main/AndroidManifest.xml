@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.inrix_hack">
+    package="com.example.inrix">
    <application
-        android:label="inrix_hack"
+        android:label="inrix"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

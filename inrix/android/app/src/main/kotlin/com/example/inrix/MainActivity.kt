@@ -1,4 +1,4 @@
-package com.example.inrix_hack
+package com.example.inrix
 
 import io.flutter.embedding.android.FlutterActivity
 

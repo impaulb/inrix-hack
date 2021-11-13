@@ -1,6 +1,6 @@
 {
-    "name": "inrix_hack",
-    "short_name": "inrix_hack",
+    "name": "inrix",
+    "short_name": "inrix",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

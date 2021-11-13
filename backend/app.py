@@ -19,19 +19,13 @@ BASE_URL = os.getenv('BASE_URL')
 # Get risk for a route using start and end point
 @app.route('/risk', methods=['GET'])
 def risk():
-    wp1 = request.args.get('wp1', default = '37.7958,-122.3938', type = str)
-    wp2 = request.args.get('wp2', default = '37.7212,-122.4919', type = str)
+    wp1 = request.args.get('wp1', default = '37.857,-122.4951334', type = str)
+    wp2 = request.args.get('wp2', default = '37.730904,-122.401962', type = str)
 
     token = getToken()
 
     apiRoutes = getRoutes(token, wp1, wp2)
     
-    risk = getRisk(apiRoutes, token)
-    
-    # FOR TESTING ONLY
-    risks = {}
-    for route in apiRoutes:
-        risks[route['id']] = 100
-    #####
+    risks = getRisk(apiRoutes, token)
     
     return formatRoutesForFrontEnd(apiRoutes, risks)

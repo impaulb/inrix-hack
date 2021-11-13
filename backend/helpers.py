@@ -57,7 +57,7 @@ def getRisk(routes, token):
         risk += 0.25 * getSpeedRisk(route)
         risk += 0.25 * getSlowdownRisk(route, token)
         
-        print("RISK : " + str(risk) + "\n")
+        print("### TOTAL RISK: " + str(risk) + "\n")
         
         risks[route['id']] = risk
     
@@ -69,29 +69,11 @@ def getTimeRisk(route):
     travelTimeMinutes = route['travelTimeMinutes']
     abnormalMinutes = abs(route['abnormalityMinutes'])
     
-    if(travelTimeMinutes >= 10 and travelTimeMinutes < 30):
-        risk += 10
-    elif(travelTimeMinutes >= 30 and travelTimeMinutes < 50):
-        risk += 20
-    elif(travelTimeMinutes >= 50 and travelTimeMinutes < 70):
-        risk += 30
-    elif(travelTimeMinutes >= 70):
-        risk += 50
-        
-    if(abnormalMinutes >= 5 and abnormalMinutes < 10):
-        risk += 10
-    elif(abnormalMinutes >= 15 and abnormalMinutes < 20):
-        risk += 20
-    elif(abnormalMinutes >= 20 and abnormalMinutes < 25):
-        risk += 30
-    elif(abnormalMinutes >= 25 and abnormalMinutes < 30):
-        risk += 40
-    elif(abnormalMinutes >= 30):
-        risk += 50
+    risk += min(travelTimeMinutes / 5, 50)
+    risk += min(abnormalMinutes / 2, 50)
     
-    print("TRAVEL TIME: " + str(travelTimeMinutes))
-    print("ABNORMAL MINUTES: " + str(abnormalMinutes))
-    
+    print("TRAVEL TIME RISK: " + str(risk))
+
     return risk
     
 def getSpeedRisk(route):
@@ -99,28 +81,12 @@ def getSpeedRisk(route):
     
     averageSpeed = route['averageSpeed']
     
-    if(averageSpeed >= 25 and averageSpeed < 30):
-        risk += 10
-    elif(averageSpeed >= 30 and averageSpeed < 35):
-        risk += 20
-    elif(averageSpeed >= 40 and averageSpeed < 45):
-        risk += 30
-    elif(averageSpeed >= 45 and averageSpeed < 50):
-        risk += 40
-    elif(averageSpeed >= 50 and averageSpeed < 55):
-        risk += 50
-    elif(averageSpeed >= 55 and averageSpeed < 60):
-        risk += 60
-    elif(averageSpeed >= 60 and averageSpeed < 65):
-        risk += 70
-    elif(averageSpeed >= 65 and averageSpeed < 70):
-        risk += 80
-    elif(averageSpeed >= 70 and averageSpeed < 75):
-        risk += 90
-    elif(averageSpeed >= 75):
-        risk += 100
-        
-    print("SPEED: " + str(averageSpeed))
+    if(averageSpeed < 60 and averageSpeed > 25):
+        risk += averageSpeed - 25
+    elif(averageSpeed >= 60):
+        risk += min(averageSpeed + 10, 100)
+    
+    print("SPEED RISK: " + str(risk))
     
     return risk
 
@@ -128,9 +94,22 @@ def getSlowdownRisk(route, token):
     headers = {'Authorization': 'Bearer ' + token}
     
     routeId = route['id']
-    slowdownRequestString = BASE_URL + "v1/dangerousSlowdowns?box="+boundingBoxToString(route['boundingBox'])
+    slowdownRequestString = BASE_URL + "v1/dangerousSlowdowns?box="+boundingBoxToString(route['boundingBox'])+'&format=json'
     
     slowdownResponseObj = json.loads(requests.get(slowdownRequestString, headers=headers).text)
     
-    return '1'
+    risk = 0
+    
+    for slowdown in slowdownResponseObj['result']['dangerousSlowdowns']:
+        speedDelta = slowdown['speedDelta']
+        risk += speedDelta - 20
+    
+    risk = risk / len(slowdownResponseObj['result']['dangerousSlowdowns'])
+    
+    if(risk > 100):
+        return 100
+    
+    print("SLOWDOWN RISK: " + str(risk))
+    
+    return risk
     

@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+import math
 
 from dotenv import load_dotenv
 
@@ -53,15 +54,18 @@ def getRisk(routes, token):
 
     for route in routes:
         risk = 0
+        
         incidents = getIncidents(route['id'], token)
-        risk += 0.25 * getTimeRisk(route)
-        risk += 0.25 * getSpeedRisk(route)
-        risk += 0.25 * getSlowdownRisk(route, token)
-        risk += 0.25 * getWeatherRisk(route)
+        time = 0.25 * getTimeRisk(route)
+        speed = 0.25 * getSpeedRisk(route)
+        slowdown = 0.25 * getSlowdownRisk(route, token)
+        weather = 0.25 * getWeatherRisk(route)
+        
+        risk = time + speed + slowdown + weather
 
         print("### TOTAL RISK: " + str(risk) + "\n")
 
-        risks[route['id']] = risk
+        risks[route['id']] = {'total': risk, 'time': time, 'speed': speed, 'slowdown': slowdown, 'weather': weather}
 
     return risks
 
@@ -96,10 +100,7 @@ def getSpeedRisk(route):
 
     averageSpeed = route['averageSpeed']
 
-    if(averageSpeed < 60 and averageSpeed > 25):
-        risk += averageSpeed - 25
-    elif(averageSpeed >= 60):
-        risk += min(averageSpeed + 10, 100)
+    risk += min(averageSpeed + 10, 100)
 
     print("SPEED RISK: " + str(risk))
 
@@ -114,10 +115,7 @@ def getSlowdownRisk(route, token):
     slowdownResponseObj = json.loads(requests.get(slowdownRequestString, headers=headers).text)
 
     risk = 0
-
-    if len(slowdownResponseObj['result']['dangerousSlowdowns']) == 0:
-        return risk
-
+    
     for slowdown in slowdownResponseObj['result']['dangerousSlowdowns']:
         speedDelta = slowdown['speedDelta']
         risk += speedDelta - 20
@@ -137,11 +135,13 @@ def getWeatherRisk(route):
 
     risk = 0
 
-    if(weatherResponseObj['is_day']):
+    if(not weatherResponseObj['is_day']):
         risk += 25
 
     risk += weatherResponseObj['gust_mph']
+    
+    risk += math.ceil((weatherResponseObj['condition']['code'] - 1000) / 3)
+    
+    print("WEATHER RISK: " + str(risk))
 
-    #if(weatherResponseObj['condition']['code'])
-
-    return 1
+    return risk

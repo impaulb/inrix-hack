@@ -71,7 +71,7 @@ def getRisk(routes, token):
         print("ROAD RISK: " + str(road))
         print("### TOTAL RISK: " + str(risk) + "\n")
 
-        risks[route['id']] = {'total': risk, 'road': road, 'incidents': incidents, 'time': time, 'speed': speed, 'slowdown': slowdown, 'weather': weather}
+        risks[route['id']] = {'total': round(risk, 2), 'road': round(road, 2), 'incidents': round(incidents, 2), 'time': round(time, 2), 'speed': round(speed, 2), 'slowdown': round(slowdown, 2), 'weather': round(weather, 2)}
 
     return risks
 

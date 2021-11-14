@@ -73,11 +73,8 @@ def getIncidents(routeID, token):
     routeRequestString = BASE_URL + 'route?routeId=' + routeID + '&routeOutputFields=I&format=json'
     routeResponseObj = json.loads(requests.get(routeRequestString, headers=headers).text)
 
-    #print(len(routeResponseObj))
-
     if 'incidents' in routeResponseObj['result'].keys():
         incidents = routeResponseObj['result']['incidents']
-        print(incidents)
 
     return incidents
 

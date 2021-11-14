@@ -60,6 +60,7 @@ def getRisk(routes, token):
         speed = getSpeedRisk(route)                 * 0.25
         slowdown = getSlowdownRisk(route, token)    * 0.25
         weather = getWeatherRisk(route)             * 0.25
+        road = getRoadRisk(route)                   * 1
 
         risk = math.ceil(incidents + time + speed + slowdown + weather)
         print("INCIDENT RISK: " + str(incidents))
@@ -67,11 +68,40 @@ def getRisk(routes, token):
         print("SPEED RISK: " + str(speed))
         print("SLOWDOWN RISK: " + str(slowdown))
         print("WEATHER RISK: " + str(weather))
+        print("ROAD RISK: " + str(road))
         print("### TOTAL RISK: " + str(risk) + "\n")
 
-        risks[route['id']] = {'total': risk, 'incidents': incidents, 'time': time, 'speed': speed, 'slowdown': slowdown, 'weather': weather}
+        risks[route['id']] = {'total': risk, 'road': road, 'incidents': incidents, 'time': time, 'speed': speed, 'slowdown': slowdown, 'weather': weather}
 
     return risks
+
+def getRoadRisk(route):
+    risk = 0
+    roads = route['summary']['roads']
+    
+    for road in roads:
+        roadType = road['roadClass']
+        
+        # Highway
+        if(roadType == 1):
+            risk += 10
+        
+        # Major Artery
+        if(roadType == 2):
+            risk += 5
+            
+        # Major Road
+        if(roadType == 3):
+            risk += 3
+        
+        # All other types (neighborhood)
+        if(roadType > 3):
+            risk +=1
+    
+    if(risk > 100):
+        return 100
+    
+    return risk
 
 def getIncidentsRisk(route, token):
     risk = 0
@@ -132,7 +162,7 @@ def getSlowdownRisk(route, token):
     if('result' not in slowdownResponseObj.keys()):
         return risk
 
-    if len(slowdownResponseObj['result']['dangerousSlowdowns']) == 0:
+    if(len(slowdownResponseObj['result']['dangerousSlowdowns']) == 0):
         return risk
 
     for slowdown in slowdownResponseObj['result']['dangerousSlowdowns']:

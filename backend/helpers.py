@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+import math
 
 from dotenv import load_dotenv
 
@@ -53,15 +54,22 @@ def getRisk(routes, token):
 
     for route in routes:
         risk = 0
-        risk += 0.25 * getIncidentsRisk(route, token)
-        risk += 0.25 * getTimeRisk(route)
-        risk += 0.25 * getSpeedRisk(route)
-        risk += 0.25 * getSlowdownRisk(route, token)
-        risk += 0.25 * getWeatherRisk(route)
 
+        incidents = math.ceil(getIncidentsRisk(route, token))   *0.25
+        time = math.ceil(getTimeRisk(route))                    *1
+        speed = math.ceil(getSpeedRisk(route))                  *0.25
+        slowdown = math.ceil(getSlowdownRisk(route, token))     *0.25
+        weather = math.ceil(getWeatherRisk(route))              *0.25
+
+        risk = math.ceil(time + speed + slowdown + weather)
+        print("INCIDENT RISK: " + str(incidents))
+        print("TIME RISK: " + str(time))
+        print("SPEED RISK: " + str(speed))
+        print("SLOWDOWN RISK: " + str(slowdown))
+        print("WEATHER RISK: " + str(weather))
         print("### TOTAL RISK: " + str(risk) + "\n")
 
-        risks[route['id']] = risk
+        risks[route['id']] = {'total': risk, 'incidents': incidents, 'time': time, 'speed': speed, 'slowdown': slowdown, 'weather': weather}
 
     return risks
 
@@ -70,10 +78,7 @@ def getIncidentsRisk(route, token):
     incidents = getIncidents(route, token)
 
     for incident in incidents:
-        print(incident['severity'])
         risk += 5 * int(incident['severity'])
-
-    print("INCISDENTS RISK: " + str(risk))
 
     return risk
 
@@ -103,8 +108,6 @@ def getTimeRisk(route):
     risk += min(travelTimeMinutes / 5, 50)
     risk += min(abnormalMinutes / 2, 50)
 
-    print("TRAVEL TIME RISK: " + str(risk))
-
     return risk
 
 def getSpeedRisk(route):
@@ -112,12 +115,7 @@ def getSpeedRisk(route):
 
     averageSpeed = route['averageSpeed']
 
-    if(averageSpeed < 60 and averageSpeed > 25):
-        risk += averageSpeed - 25
-    elif(averageSpeed >= 60):
-        risk += min(averageSpeed + 10, 100)
-
-    print("SPEED RISK: " + str(risk))
+    risk += min(averageSpeed + 10, 100)
 
     return risk
 
@@ -131,9 +129,6 @@ def getSlowdownRisk(route, token):
 
     risk = 0
 
-    if len(slowdownResponseObj['result']['dangerousSlowdowns']) == 0:
-        return risk
-
     for slowdown in slowdownResponseObj['result']['dangerousSlowdowns']:
         speedDelta = slowdown['speedDelta']
         risk += speedDelta - 20
@@ -143,8 +138,6 @@ def getSlowdownRisk(route, token):
     if(risk > 100):
         return 100
 
-    print("SLOWDOWN RISK: " + str(risk))
-
     return risk
 
 def getWeatherRisk(route):
@@ -153,11 +146,11 @@ def getWeatherRisk(route):
 
     risk = 0
 
-    if(weatherResponseObj['is_day']):
+    if(not weatherResponseObj['is_day']):
         risk += 25
 
     risk += weatherResponseObj['gust_mph']
 
-    #if(weatherResponseObj['condition']['code'])
+    risk += math.ceil((weatherResponseObj['condition']['code'] - 1000) / 3)
 
-    return 1
+    return risk

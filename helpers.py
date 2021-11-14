@@ -129,6 +129,9 @@ def getSlowdownRisk(route, token):
 
     risk = 0
 
+    if len(slowdownResponseObj['result']['dangerousSlowdowns']) == 0:
+        return risk
+
     for slowdown in slowdownResponseObj['result']['dangerousSlowdowns']:
         speedDelta = slowdown['speedDelta']
         risk += speedDelta - 20

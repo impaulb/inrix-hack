@@ -53,7 +53,7 @@ def getRisk(routes, token):
 
     for route in routes:
         risk = 0
-        incidents = getIncidents(route['id'], token)
+        risk += 0.25 * getIncidentsRisk(route, token)
         risk += 0.25 * getTimeRisk(route)
         risk += 0.25 * getSpeedRisk(route)
         risk += 0.25 * getSlowdownRisk(route, token)
@@ -65,18 +65,34 @@ def getRisk(routes, token):
 
     return risks
 
-def getIncidents(routeID, token):
-    incidents = []
+def getIncidentsRisk(route, token):
+    risk = 0
+    incidents = getIncidents(route, token)
+
+    for incident in incidents:
+        print(incident['severity'])
+        risk += 5 * int(incident['severity'])
+
+    print("INCISDENTS RISK: " + str(risk))
+
+    return risk
+
+def getIncidents(route, token):
+    incidentIds = ''
+
+    if 'incidents' in route.keys():
+        for incident in route['incidents']:
+            incidentIds += str(incident)+','
+        incidentIds = incidentIds[:-1]
+    else:
+        return {}
 
     headers = {'Authorization': 'Bearer ' + token}
 
-    routeRequestString = BASE_URL + 'route?routeId=' + routeID + '&routeOutputFields=I&format=json'
-    routeResponseObj = json.loads(requests.get(routeRequestString, headers=headers).text)
+    incidentRequestString = BASE_URL + 'v1/incidents?ids=' + incidentIds + '&format=json'
+    incidents = json.loads(requests.get(incidentRequestString, headers=headers).text)
 
-    if 'incidents' in routeResponseObj['result'].keys():
-        incidents = routeResponseObj['result']['incidents']
-
-    return incidents
+    return incidents['result']['incidents']
 
 def getTimeRisk(route):
     risk = 0

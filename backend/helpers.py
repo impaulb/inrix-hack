@@ -73,6 +73,8 @@ def getIncidents(routeID, token):
     routeRequestString = BASE_URL + 'route?routeId=' + routeID + '&routeOutputFields=I&format=json'
     routeResponseObj = json.loads(requests.get(routeRequestString, headers=headers).text)
 
+    #print(len(routeResponseObj))
+
     if 'incidents' in routeResponseObj['result'].keys():
         incidents = routeResponseObj['result']['incidents']
         print(incidents)
@@ -115,6 +117,9 @@ def getSlowdownRisk(route, token):
     slowdownResponseObj = json.loads(requests.get(slowdownRequestString, headers=headers).text)
 
     risk = 0
+
+    if len(slowdownResponseObj['result']['dangerousSlowdowns']) == 0:
+        return risk
 
     for slowdown in slowdownResponseObj['result']['dangerousSlowdowns']:
         speedDelta = slowdown['speedDelta']

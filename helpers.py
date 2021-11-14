@@ -129,6 +129,9 @@ def getSlowdownRisk(route, token):
 
     risk = 0
 
+    if('result' not in slowdownResponseObj.keys()):
+        return risk
+
     if len(slowdownResponseObj['result']['dangerousSlowdowns']) == 0:
         return risk
 

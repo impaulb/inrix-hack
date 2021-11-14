@@ -55,10 +55,10 @@ def getRisk(routes, token):
     for route in routes:
         risk = 0
 
-        incidents = getIncidentsRisk(route, token)  * 0.5
+        incidents = getIncidentsRisk(route, token)  * 1
         time = getTimeRisk(route)                   * 1
         speed = getSpeedRisk(route)                 * 0.25
-        slowdown = getSlowdownRisk(route, token)    * 0.25
+        slowdown = getSlowdownRisk(route, token)    * 0.5
         weather = getWeatherRisk(route)             * 0.25
         road = getRoadRisk(route)                   * 1
 

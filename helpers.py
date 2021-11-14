@@ -72,10 +72,10 @@ def getRisk(routes, token):
         print("### TOTAL RISK: " + str(risk) + "\n")
         
         if(incidents == 0):
-            incidents = 10
+            incidents = 2
         
         if(slowdown == 0):
-            slowdown = 15
+            slowdown = 1.5
 
         risks[route['id']] = {'total': round(risk, 2), 'road': round(road, 2), 'incidents': round(incidents, 2), 'time': round(time, 2), 'speed': round(speed, 2), 'slowdown': round(slowdown, 2), 'weather': round(weather, 2)}
 

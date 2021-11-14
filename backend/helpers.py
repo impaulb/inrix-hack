@@ -56,13 +56,16 @@ def getRisk(routes, token):
         risk = 0
         
         incidents = getIncidents(route['id'], token)
-        time = 0.25 * getTimeRisk(route)
-        speed = 0.25 * getSpeedRisk(route)
-        slowdown = 0.25 * getSlowdownRisk(route, token)
-        weather = 0.25 * getWeatherRisk(route)
+        time = math.ceil(getTimeRisk(route))                    *1
+        speed = math.ceil(getSpeedRisk(route))                  *0.25
+        slowdown = math.ceil(getSlowdownRisk(route, token))     *0.25
+        weather = math.ceil(getWeatherRisk(route))              *0.25
         
-        risk = time + speed + slowdown + weather
-
+        risk = math.ceil(time + speed + slowdown + weather)
+        print("TIME RISK: " + str(time))
+        print("SPEED RISK: " + str(speed))
+        print("SLOWDOWN RISK: " + str(slowdown))
+        print("WEATHER RISK: " + str(weather))
         print("### TOTAL RISK: " + str(risk) + "\n")
 
         risks[route['id']] = {'total': risk, 'time': time, 'speed': speed, 'slowdown': slowdown, 'weather': weather}
@@ -91,8 +94,6 @@ def getTimeRisk(route):
     risk += min(travelTimeMinutes / 5, 50)
     risk += min(abnormalMinutes / 2, 50)
 
-    print("TRAVEL TIME RISK: " + str(risk))
-
     return risk
 
 def getSpeedRisk(route):
@@ -101,8 +102,6 @@ def getSpeedRisk(route):
     averageSpeed = route['averageSpeed']
 
     risk += min(averageSpeed + 10, 100)
-
-    print("SPEED RISK: " + str(risk))
 
     return risk
 
@@ -125,8 +124,6 @@ def getSlowdownRisk(route, token):
     if(risk > 100):
         return 100
 
-    print("SLOWDOWN RISK: " + str(risk))
-
     return risk
 
 def getWeatherRisk(route):
@@ -141,7 +138,5 @@ def getWeatherRisk(route):
     risk += weatherResponseObj['gust_mph']
     
     risk += math.ceil((weatherResponseObj['condition']['code'] - 1000) / 3)
-    
-    print("WEATHER RISK: " + str(risk))
 
     return risk

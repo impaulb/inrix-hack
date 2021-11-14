@@ -55,13 +55,13 @@ def getRisk(routes, token):
     for route in routes:
         risk = 0
 
-        incidents = math.ceil(getIncidentsRisk(route, token))   *0.25
-        time = math.ceil(getTimeRisk(route))                    *1
-        speed = math.ceil(getSpeedRisk(route))                  *0.25
-        slowdown = math.ceil(getSlowdownRisk(route, token))     *0.25
-        weather = math.ceil(getWeatherRisk(route))              *0.25
+        incidents = getIncidentsRisk(route, token)  * 1
+        time = getTimeRisk(route)                   * 1
+        speed = getSpeedRisk(route)                 * 0.25
+        slowdown = getSlowdownRisk(route, token)    * 0.25
+        weather = getWeatherRisk(route)             * 0.25
 
-        risk = math.ceil(time + speed + slowdown + weather)
+        risk = math.ceil(incidents + time + speed + slowdown + weather)
         print("INCIDENT RISK: " + str(incidents))
         print("TIME RISK: " + str(time))
         print("SPEED RISK: " + str(speed))
@@ -78,7 +78,7 @@ def getIncidentsRisk(route, token):
     incidents = getIncidents(route, token)
 
     for incident in incidents:
-        risk += 5 * int(incident['severity'])
+        risk += 10 * int(incident['severity'])
 
     return risk
 

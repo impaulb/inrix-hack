@@ -55,10 +55,10 @@ def getRisk(routes, token):
     for route in routes:
         risk = 0
 
-        incidents = getIncidentsRisk(route, token)  * 0.5
+        incidents = getIncidentsRisk(route, token)  * 1
         time = getTimeRisk(route)                   * 1
         speed = getSpeedRisk(route)                 * 0.25
-        slowdown = getSlowdownRisk(route, token)    * 0.25
+        slowdown = getSlowdownRisk(route, token)    * 0.5
         weather = getWeatherRisk(route)             * 0.25
         road = getRoadRisk(route)                   * 1
 
@@ -70,8 +70,14 @@ def getRisk(routes, token):
         print("WEATHER RISK: " + str(weather))
         print("ROAD RISK: " + str(road))
         print("### TOTAL RISK: " + str(risk) + "\n")
+        
+        if(incidents == 0):
+            incidents = 2
+        
+        if(slowdown == 0):
+            slowdown = 1.5
 
-        risks[route['id']] = {'total': risk, 'road': road, 'incidents': incidents, 'time': time, 'speed': speed, 'slowdown': slowdown, 'weather': weather}
+        risks[route['id']] = {'total': round(risk, 2), 'road': round(road, 2), 'incidents': round(incidents, 2), 'time': round(time, 2), 'speed': round(speed, 2), 'slowdown': round(slowdown, 2), 'weather': round(weather, 2)}
 
     return risks
 

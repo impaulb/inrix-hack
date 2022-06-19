@@ -22,6 +22,8 @@ def risk():
     wp1 = request.args.get('wp1', default = '37.857,-122.4951334', type = str)
     wp2 = request.args.get('wp2', default = '37.730904,-122.401962', type = str)
 
+    print(wp1,wp2)
+
     token = getToken()
 
     apiRoutes = getRoutes(token, wp1, wp2)
